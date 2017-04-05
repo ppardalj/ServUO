@@ -581,7 +581,7 @@ namespace Server.Mobiles
 
 									if (m_Mobile.CheckControlChance(e.Mobile))
 									{
-										
+
 										m_Mobile.ControlOrder = OrderType.Guard;
                                         m_Mobile.ControlTarget = null;
 									}
@@ -710,7 +710,7 @@ namespace Server.Mobiles
 									{
                                         m_Mobile.ControlOrder = OrderType.Guard;
                                         m_Mobile.ControlTarget = null;
-										
+
 									}
 
 									return;
@@ -1325,7 +1325,7 @@ namespace Server.Mobiles
 
 					if (WalkMobileRange(m_Mobile.ControlMaster, 1, bRun, 0, 1))
 					{
-						if (m_Mobile.Combatant is Mobile && !m_Mobile.Combatant.Deleted && 
+						if (m_Mobile.Combatant is Mobile && !m_Mobile.Combatant.Deleted &&
                             m_Mobile.Combatant.Alive && (!(m_Mobile.Combatant is Mobile) || !((Mobile)m_Mobile.Combatant).IsDeadBondedPet))
 						{
 							m_Mobile.Warmode = true;
@@ -2322,10 +2322,10 @@ namespace Server.Mobiles
 			{
 				d |= Direction.Running;
 			}
-            
+
 			// This makes them always move one step, never any direction changes
 			m_Mobile.Direction = d;
-            
+
 			m_NextMove += delay;
 
 			if (Core.TickCount - m_NextMove > 0)
@@ -2644,12 +2644,12 @@ namespace Server.Mobiles
 
 		/*
         *  Walk at range distance from mobile
-        * 
+        *
         *	iSteps : Number of steps
         *	bRun   : Do we run
         *	iWantDistMin : The minimum distance we want to be
         *  iWantDistMax : The maximum distance we want to be
-        * 
+        *
         */
 
 		public virtual bool WalkMobileRange(IPoint3D p, int iSteps, bool bRun, int iWantDistMin, int iWantDistMax)
@@ -2737,13 +2737,13 @@ namespace Server.Mobiles
 
 		/*
         * Here we check to acquire a target from our surronding
-        * 
+        *
         *  iRange : The range
         *  acqType : A type of acquire we want (closest, strongest, etc)
         *  bPlayerOnly : Don't bother with other creatures or NPCs, want a player
         *  bFacFriend : Check people in my faction
         *  bFacFoe : Check people in other factions
-        * 
+        *
         */
 
 		public virtual bool AcquireFocusMob(int iRange, FightMode acqType, bool bPlayerOnly, bool bFacFriend, bool bFacFoe)
@@ -3023,51 +3023,6 @@ namespace Server.Mobiles
 			return false;
 		}
 
-		public virtual void DetectHidden()
-		{
-			if (m_Mobile.Deleted || m_Mobile.Map == null)
-			{
-				return;
-			}
-
-			m_Mobile.DebugSay("Checking for hidden players");
-
-			double srcSkill = m_Mobile.Skills[SkillName.DetectHidden].Value;
-
-			if (srcSkill <= 0)
-			{
-				return;
-			}
-
-			IPooledEnumerable eable = m_Mobile.GetMobilesInRange(m_Mobile.RangePerception);
-			foreach (Mobile trg in eable)
-			{
-				if (trg != m_Mobile && trg.Player && trg.Alive && trg.Hidden && trg.IsPlayer() && m_Mobile.InLOS(trg))
-				{
-					m_Mobile.DebugSay("Trying to detect {0}", trg.Name);
-
-					double trgHiding = trg.Skills[SkillName.Hiding].Value / 2.9;
-					double trgStealth = trg.Skills[SkillName.Stealth].Value / 1.8;
-
-					double chance = srcSkill / 1.2 - Math.Min(trgHiding, trgStealth);
-
-					if (chance < srcSkill / 10)
-					{
-						chance = srcSkill / 10;
-					}
-
-					chance /= 100;
-
-					if (chance > Utility.RandomDouble())
-					{
-						trg.RevealingAction();
-						trg.SendLocalizedMessage(500814); // You have been revealed!
-					}
-				}
-			}
-			eable.Free();
-		}
-
 		public virtual void Deactivate()
 		{
 			if (m_Mobile.PlayerRangeSensitive)
@@ -3130,10 +3085,6 @@ namespace Server.Mobiles
 			m_Timer.Start();
 		}
 
-		private long m_NextDetectHidden;
-
-		public virtual bool CanDetectHidden { get { return m_Mobile.Skills[SkillName.DetectHidden].Value > 0; } }
-
 		/*
         *  The Timer object
         */
@@ -3147,8 +3098,6 @@ namespace Server.Mobiles
 					TimeSpan.FromSeconds(Utility.RandomDouble()), TimeSpan.FromSeconds(Math.Max(0.0, owner.m_Mobile.CurrentSpeed)))
 			{
 				m_Owner = owner;
-
-				m_Owner.m_NextDetectHidden = Core.TickCount;
 
 				Priority = TimerPriority.FiftyMS;
 			}
@@ -3214,25 +3163,6 @@ namespace Server.Mobiles
 							return;
 						}
 					}
-				}
-
-				if (m_Owner.CanDetectHidden && Core.TickCount - m_Owner.m_NextDetectHidden >= 0)
-				{
-					m_Owner.DetectHidden();
-
-					// Not exactly OSI style, approximation.
-					int delay = (15000 / m_Owner.m_Mobile.Int);
-
-					if (delay > 60)
-					{
-						delay = 60;
-					}
-
-					int min = delay * (9 / 10); // 13s at 1000 int, 33s at 400 int, 54s at <250 int
-					int max = delay * (10 / 9); // 16s at 1000 int, 41s at 400 int, 66s at <250 int
-
-					m_Owner.m_NextDetectHidden = Core.TickCount +
-												 (int)TimeSpan.FromSeconds(Utility.RandomMinMax(min, max)).TotalMilliseconds;
 				}
 			}
 		}

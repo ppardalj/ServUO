@@ -941,7 +941,7 @@ namespace Server.Mobiles
                     PlayerMobile pm = m as PlayerMobile;
                     toDrain = (int)drNO.ThieveItems.LifeShieldLotion.HandleLifeDrain(pm, toDrain);
                 }
-                //end 
+                //end
 
 
                 Hits += toDrain;
@@ -1148,7 +1148,7 @@ namespace Server.Mobiles
 			}
 
 			BaseCreature c = (BaseCreature)m;
-            
+
 			if (c.IsMilitiaFighter)
 			{
 				return true;
@@ -1682,8 +1682,8 @@ namespace Server.Mobiles
 
         Seems this actually was removed on OSI somewhere between the original bug report and now.
         We will call it ML, until we can get better information. I suspect it was on the OSI TC when
-        originally it taken out of RunUO, and not implmented on OSIs production shards until more 
-        recently.  Either way, this is, or was, accurate OSI behavior, and just entirely 
+        originally it taken out of RunUO, and not implmented on OSIs production shards until more
+        recently.  Either way, this is, or was, accurate OSI behavior, and just entirely
         removing it was incorrect.  OSI followers were distracted by being attacked well into
         AoS, at very least.
 
@@ -2064,6 +2064,10 @@ namespace Server.Mobiles
 
             m_NextReacquireTime = Core.TickCount + (int)ReacquireDelay.TotalMilliseconds;
 
+            #region Detect Hidden
+            m_NextDetectHidden = Core.TickCount;
+            #endregion
+
             ChangeAIType(AI);
 
             InhumanSpeech speechType = SpeechType;
@@ -2078,7 +2082,7 @@ namespace Server.Mobiles
                 NameHue = 0x35;
             }
 
-            Timer.DelayCall(() =>GenerateLoot(true));
+            Timer.DelayCall(() => GenerateLoot(true));
         }
 
         public BaseCreature(Serial serial)
@@ -3405,13 +3409,11 @@ namespace Server.Mobiles
             }
         }
 
-        /*
-        * This function can be overriden.. so a "Strongest" mobile, can have a different definition depending
-        * on who check for value
-        * -Could add a FightMode.Prefered
-        *
-        */
-
+        /**
+         * This function can be overriden, so a "Strongest" mobile, can have a different definition depending
+         * on who check for value.
+         * - Could add a FightMode.Prefered
+         */
         public virtual double GetFightModeRanking(Mobile m, FightMode acqType, bool bPlayerOnly)
         {
             if ((bPlayerOnly && m.Player) || !bPlayerOnly)
@@ -4133,8 +4135,8 @@ namespace Server.Mobiles
             return true; // entered idle state
         }
 
-        /* 
-			this way, due to the huge number of locations this will have to be changed 
+        /*
+			this way, due to the huge number of locations this will have to be changed
 			Perhaps we can change this in the future when fixing game play is not the
 			major issue.
 		*/
@@ -5532,8 +5534,8 @@ namespace Server.Mobiles
         public static int[] RecipeTypes { get { return _RecipeTypes; } }
         private static int[] _RecipeTypes =
         {
-            560, 561, 562, 563, 564, 565, 566, 
-            570, 571, 572, 573, 574, 575, 576, 577, 
+            560, 561, 562, 563, 564, 565, 566,
+            570, 571, 572, 573, 574, 575, 576, 577,
             580, 581, 582, 583, 584
             //602, 603, 604,  // nutcrackers
             //800             // runic atlas
@@ -6968,7 +6970,68 @@ namespace Server.Mobiles
                 TryTeleport();
                 _NextTeleport = tc + (int)TeleportDuration.TotalMilliseconds;
             }
+
+            #region Detect Hidden
+            if (CanDetectHidden && Core.TickCount - m_NextDetectHidden >= 0)
+            {
+                DetectHidden();
+
+                // Not exactly OSI style, approximation.
+                int delay = (15000 / Int);
+
+                if (delay > 60)
+                    delay = 60;
+
+                int min = delay * (9 / 10); // 13s at 1000 int, 33s at 400 int, 54s at <250 int
+                int max = delay * (10 / 9); // 16s at 1000 int, 41s at 400 int, 66s at <250 int
+
+                m_NextDetectHidden = Core.TickCount + (int)TimeSpan.FromSeconds(Utility.RandomMinMax(min, max)).TotalMilliseconds;
+            }
+            #endregion
         }
+
+        #region Detect Hidden
+        private long m_NextDetectHidden;
+
+        public virtual bool CanDetectHidden => Skills[SkillName.DetectHidden].Value > 0;
+
+        public virtual void DetectHidden()
+        {
+            if (Deleted || Map == null)
+                return;
+
+            DebugSay("Checking for hidden players");
+
+            double srcSkill = Skills[SkillName.DetectHidden].Value;
+
+            if (srcSkill <= 0)
+                return;
+
+            foreach (var target in GetMobilesInRange(RangePerception))
+            {
+                if (target != this && target.Player && target.Alive && target.Hidden && target.IsPlayer() && InLOS(target))
+                {
+                    DebugSay("Trying to detect {0}", target.Name);
+
+                    double trgHiding = target.Skills[SkillName.Hiding].Value / 2.9;
+                    double trgStealth = target.Skills[SkillName.Stealth].Value / 1.8;
+
+                    double chance = srcSkill / 1.2 - Math.Min(trgHiding, trgStealth);
+
+                    if (chance < srcSkill / 10)
+                        chance = srcSkill / 10;
+
+                    chance /= 100;
+
+                    if (chance > Utility.RandomDouble())
+                    {
+                        target.RevealingAction();
+                        target.SendLocalizedMessage(500814); // You have been revealed!
+                    }
+                }
+            }
+        }
+        #endregion
 
         public virtual bool Rummage()
         {
@@ -7315,7 +7378,7 @@ namespace Server.Mobiles
         private bool m_RemoveOnSave;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public bool RemoveOnSave { get { return m_RemoveOnSave; } set { m_RemoveOnSave = value; } }    
+        public bool RemoveOnSave { get { return m_RemoveOnSave; } set { m_RemoveOnSave = value; } }
     }
 
     public class LoyaltyTimer : Timer
