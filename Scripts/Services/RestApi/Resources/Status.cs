@@ -11,22 +11,10 @@ using Parameters = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Server.Engines.RestApi
 {
-	[Path( "/status" )]
-	public class StatusLocator : BaseLocator
+    [Path( "/status" )]
+	public class StatusController : BaseController
 	{
-		public override BaseResource Locate( Parameters parameters )
-		{
-			return new StatusResource();
-		}
-	}
-
-	public class StatusResource : BaseResource
-	{
-		public StatusResource()
-		{
-		}
-
-		public override object HandleRequest( HttpListenerContext context )
+		public override object HandleRequest( Parameters parameters, HttpListenerContext context )
 		{
 			var onlineCount = NetState.Instances.Count;
 			var accountCount = Accounts.GetAccounts().Count( a => /*!a.Banned && */a.Count > 0 );

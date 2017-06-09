@@ -4,24 +4,23 @@ using System.Net;
 using Server;
 using Server.Accounting;
 
+using Parameters = System.Collections.Generic.Dictionary<string, string>;
+
 namespace Server.Engines.RestApi
 {
-	public abstract class BaseProtectedResource : BaseResource
+	public abstract class BaseProtectedController : BaseController
 	{
 		public abstract AccessLevel RequiredAccessLevel { get; }
 
-		public override void AccessCheck( HttpListenerContext context )
+		public override void AccessCheck( Parameters parameters, HttpListenerContext context )
 		{
-			var identity = (HttpListenerBasicIdentity) context.User.Identity;
-			var username = identity.Name;
-			var password = identity.Password;
 
 			var account = GetAccount( context );
-
 			if ( account == null )
 				throw new AccessDenied( "Unexistant account" );
 
-			if ( !account.CheckPassword( password ) )
+		    var identity = (HttpListenerBasicIdentity) context.User.Identity;
+			if ( !account.CheckPassword( identity.Password ) )
 				throw new AccessDenied( "Invalid credentials" );
 
 			if ( account.AccessLevel < RequiredAccessLevel )
@@ -31,14 +30,6 @@ namespace Server.Engines.RestApi
 		protected IAccount GetAccount( HttpListenerContext context )
 		{
 			return Accounts.GetAccount( context.User.Identity.Name );
-		}
-	}
-
-	public class AccessDenied : Exception
-	{
-		public AccessDenied( string message )
-			: base( message )
-		{
 		}
 	}
 }

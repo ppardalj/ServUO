@@ -5,9 +5,6 @@ using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 
-using Server;
-using Server.Web;
-
 using Parameters = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Server.Engines.RestApi
@@ -21,37 +18,49 @@ namespace Server.Engines.RestApi
 			_routingMap = new Dictionary<Route, Type>();
 		}
 
-		public void RegisterLocator( Route route, Type locatorType )
+		public void RegisterController( Route route, Type controllerType )
 		{
-			_routingMap[route] = locatorType;
+			_routingMap[route] = controllerType;
+		    Console.WriteLine( "Rest Api: Registering route {0}", route );
 		}
 
 		public void ProcessRequest( HttpListenerContext context )
 		{
 			try
 			{
-				// Acquire the resource
-				var resource = AcquireResource( context.Request.RawUrl.Split( '?' ).First() );
+			    string uri = context.Request.RawUrl.Split( '?' ).First();
 
-				if ( resource != null )
-				{
-					// Call the handler
-					resource.AccessCheck( context );
-					var response = resource.HandleRequest( context );
+			    // Select the route that matches the uri
+			    var route = _routingMap.Keys.FirstOrDefault( r => r.IsMatch( uri ) );
+			    if ( route == null )
+			        throw new NotFound( "Could not find route" );
 
-					// Serialize the response
-					var jsonResponse = JsonSerialize( response );
+                // Get the controller
+                var controllerType = _routingMap[route];
+                var controller = (BaseController)Activator.CreateInstance( controllerType );
+                if ( controller == null )
+                    throw new NotFound( "Could not instantiate controller" );
 
-					// Write the serialized data into the output stream
-					context.Response.ContentType = "application/json";
-					byte[] outputBuffer = Encoding.ASCII.GetBytes( jsonResponse );
-					context.Response.OutputStream.Write( outputBuffer, 0, outputBuffer.Length );
-				}
-				else
-				{
-					Console.WriteLine( "Rest Api: Not found: {0}", context.Request.RawUrl );
-					context.Response.StatusCode = 404; // Not found
-				}
+                // Get the matched parameters
+                var parameters = route.GetMatchedParameters(uri);
+
+                // Call the handler
+                controller.AccessCheck( parameters, context );
+                var response = controller.HandleRequest( parameters, context );
+
+                // Serialize the response
+                var jsonResponse = JsonSerialize( response );
+
+                // Write the serialized data into the output stream
+                context.Response.ContentType = "application/json";
+                byte[] outputBuffer = Encoding.ASCII.GetBytes( jsonResponse );
+                context.Response.OutputStream.Write( outputBuffer, 0, outputBuffer.Length );
+
+			}
+			catch ( NotFound e )
+			{
+			    Console.WriteLine( "Rest Api: Not found: {0}", context.Request.RawUrl );
+			    context.Response.StatusCode = 404; // Not found
 			}
 			catch ( AccessDenied e )
 			{
@@ -63,33 +72,6 @@ namespace Server.Engines.RestApi
 			    Console.WriteLine( "Rest Api: Unexpected error: {0}", e );
 				context.Response.StatusCode = 500;
 			}
-		}
-
-		private BaseResource AcquireResource( string uri )
-		{
-			BaseResource resource = null;
-
-			// Select the route that matches the uri
-			var route = _routingMap.Keys.FirstOrDefault(
-				r => r.IsMatch( uri ) );
-
-			if ( route != null )
-			{
-				// Get the resource locator
-				var locatorType = _routingMap[route];
-				var locator = (BaseLocator) Activator.CreateInstance( locatorType );
-
-				if ( locator != null )
-				{
-					// Get the matched parameters
-					var parameters = route.GetMatchedParameters( uri );
-
-					// Acquire the resource
-					resource = locator.Locate( parameters );
-				}
-			}
-
-			return resource;
 		}
 
 		private string JsonSerialize( object o )

@@ -1,43 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-
-using Server;
 
 using Parameters = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Server.Engines.RestApi
 {
 	[Path( "/staff/broadcast" )]
-	public class BroadcastLocator : BaseLocator
+	public class BroadcastController : BaseController
 	{
-		public override BaseResource Locate( Parameters parameters )
-		{
-			return BroadcastResource.Instance;
-		}
-	}
-
-	public class BroadcastResource : BaseResource
-	{
-		private static BroadcastResource _instance;
-
-		public static BroadcastResource Instance
-		{
-			get
-			{
-				if ( _instance == null )
-					_instance = new BroadcastResource();
-
-				return _instance;
-			}
-		}
-
-		private BroadcastResource()
-		{
-		}
-
-		public override object HandleRequest( HttpListenerContext context )
+		public override object HandleRequest( Parameters parameters, HttpListenerContext context )
 		{
 			if ( context.Request.HttpMethod != "POST" )
 				throw new NotSupportedException();
@@ -45,7 +16,7 @@ namespace Server.Engines.RestApi
 			var request = GetRequestData<BroadcastRequest>( context );
 			var broadcast = request.Broadcast;
 
-			Commands.CommandHandlers.BroadcastMessage( AccessLevel.Player, 0x482, String.Format( "Staff message from {0}:", broadcast.Name ) );
+			Commands.CommandHandlers.BroadcastMessage( AccessLevel.Player, 0x482, string.Format( "Staff message from {0}:", broadcast.Name ) );
 			Commands.CommandHandlers.BroadcastMessage( AccessLevel.Player, 0x482, broadcast.Message );
 
 			return request;

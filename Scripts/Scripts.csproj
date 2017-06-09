@@ -9738,9 +9738,10 @@
     <Compile Include="Services\Reports\Persistence\PersistenceWriter.cs" />
     <Compile Include="Services\RestApi\ApiServer.cs" />
     <Compile Include="Services\RestApi\Core\Attributes\PathAttribute.cs" />
-    <Compile Include="Services\RestApi\Core\BaseLocator.cs" />
-    <Compile Include="Services\RestApi\Core\BaseProtectedResource.cs" />
-    <Compile Include="Services\RestApi\Core\BaseResource.cs" />
+    <Compile Include="Services\RestApi\Core\BaseControllerResource.cs" />
+    <Compile Include="Services\RestApi\Core\BaseController.cs" />
+    <Compile Include="Services\RestApi\Core\Exceptions\AccessDenied.cs" />
+    <Compile Include="Services\RestApi\Core\Exceptions\NotFound.cs" />
     <Compile Include="Services\RestApi\Core\HttpRouter.cs" />
     <Compile Include="Services\RestApi\Core\HttpServer.cs" />
     <Compile Include="Services\RestApi\Core\Route.cs" />
@@ -12584,7 +12585,6 @@
     <Content Include="Services\XmlSpawner\XMLSpawner Support\xmlspawner2doc.txt" />
     <Content Include="Spells\Mysticism\Blank.txt" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />

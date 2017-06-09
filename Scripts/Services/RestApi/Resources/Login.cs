@@ -7,21 +7,9 @@ using Parameters = System.Collections.Generic.Dictionary<string, string>;
 namespace Server.Engines.RestApi
 {
 	[Path( "/login" )]
-	public class LoginLocator : BaseLocator
+	public class LoginController : BaseController
 	{
-		public override BaseResource Locate( Parameters parameters )
-		{
-			return new LoginResource();
-		}
-	}
-
-	public class LoginResource : BaseResource
-	{
-		public LoginResource()
-		{
-		}
-
-		public override object HandleRequest( HttpListenerContext context )
+		public override object HandleRequest( Parameters parameters, HttpListenerContext context )
 		{
 			var login = GetRequestData<LoginRequest>( context ).Login;
 

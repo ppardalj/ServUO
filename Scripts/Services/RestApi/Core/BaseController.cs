@@ -8,14 +8,14 @@ using Parameters = System.Collections.Generic.Dictionary<string, string>;
 
 namespace Server.Engines.RestApi
 {
-	public abstract class BaseResource
+	public abstract class BaseController
 	{
 		/// <summary>
-		/// Checks the access to this resource.
+		/// Checks the access to this controller.
 		/// </summary>
 		/// <param name="context"></param>
-		/// <exception cref="AccessDenied">If client is not allowed to access this resource.</exception>
-		public virtual void AccessCheck( HttpListenerContext context )
+		/// <exception cref="AccessDenied">If client is not allowed to access this controller.</exception>
+		public virtual void AccessCheck( Parameters parameters, HttpListenerContext context )
 		{
 		}
 
@@ -24,7 +24,7 @@ namespace Server.Engines.RestApi
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns>The response</returns>
-		public virtual object HandleRequest( HttpListenerContext context )
+		public virtual object HandleRequest( Parameters parameters, HttpListenerContext context )
 		{
 			throw new NotImplementedException();
 		}

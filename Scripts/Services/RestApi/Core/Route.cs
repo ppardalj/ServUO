@@ -1,22 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using Parameters = System.Collections.Generic.Dictionary<string, string>;
 
-namespace Server.Web
+namespace Server.Engines.RestApi
 {
 	public class Route
 	{
-		private String _pattern;
+	    private string _pattern;
 		private Regex _matcher;
 
 		public Route( string pattern )
 		{
-			_pattern = pattern;
-			_matcher = new Regex( String.Format( "^{0}$", Regex.Replace( pattern, @"\{(\w+)\}", @"(?<$1>\w+)" ) ) );
+		    _pattern = pattern;
+			_matcher = new Regex( string.Format( "^{0}$", Regex.Replace( pattern, @"\{(\w+)\}", @"(?<$1>\w+)" ) ) );
 		}
 
 		public bool IsMatch( string uri )
@@ -38,5 +36,10 @@ namespace Server.Web
 					name => match.Groups[name].Value
 				);
 		}
+
+	    public override string ToString()
+	    {
+	        return _pattern;
+	    }
 	}
 }

@@ -7,63 +7,35 @@ using Parameters = System.Collections.Generic.Dictionary<string, string>;
 namespace Server.Engines.RestApi
 {
 	[Path( "/players/{id}" )]
-	public class PlayerLocator : BaseLocator
-	{
-		public override BaseResource Locate( Parameters parameters )
-		{
-			BaseResource resource = null;
-
-			try
-			{
-				Serial serial = Convert.ToInt32( parameters["id"] );
-				PlayerMobile pm = World.FindMobile( serial ) as PlayerMobile;
-
-				if ( pm != null )
-					resource = new PlayerResource( pm );
-			}
-			catch
-			{
-			}
-
-			return resource;
-		}
-	}
-
-	public class PlayerResource : BaseProtectedResource
+	public class PlayerController : BaseProtectedController
 	{
 		public override AccessLevel RequiredAccessLevel { get { return AccessLevel.Player; } }
 
-		private PlayerMobile m_Mobile;
-
-		public PlayerResource( PlayerMobile pm )
+		public override object HandleRequest( Parameters parameters, HttpListenerContext context )
 		{
-			m_Mobile = pm;
-		}
+		    Serial serial = Convert.ToInt32( parameters["id"] );
+		    PlayerMobile pm = World.FindMobile( serial ) as PlayerMobile;
 
-		public override void AccessCheck( HttpListenerContext context )
-		{
-			base.AccessCheck( context );
+		    if ( pm == null )
+		        throw new AccessDenied( "Player not found" ); // TODO: Proper error 404
 
-			var account = GetAccount( context );
-			if ( account.AccessLevel <= AccessLevel.Player )
-			{
-				if ( account != m_Mobile.Account )
-					throw new AccessDenied( "Cannot see other player details" );
-			}
-		}
+		    var account = GetAccount( context );
+		    if ( account.AccessLevel <= AccessLevel.Player )
+		    {
+		        if ( account != pm.Account )
+		            throw new AccessDenied( "Cannot see other player details" );
+		    }
 
-		public override object HandleRequest( HttpListenerContext context )
-		{
 			return new
 			{
 				Player = new
 				{
-					Name = m_Mobile.Name,
-					Serial = m_Mobile.Serial,
-					Fame = m_Mobile.Fame,
-					Karma = m_Mobile.Karma,
-					Kills = m_Mobile.Kills,
-					ShortKills = m_Mobile.ShortTermMurders,
+					Name = pm.Name,
+					Serial = pm.Serial,
+					Fame = pm.Fame,
+					Karma = pm.Karma,
+					Kills = pm.Kills,
+					ShortKills = pm.ShortTermMurders,
 				}
 			};
 		}

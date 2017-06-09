@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-
-using Server;
-using Server.Web;
 
 using Parameters = System.Collections.Generic.Dictionary<string, string>;
 
@@ -39,10 +35,10 @@ namespace Server.Engines.RestApi
 
 			foreach ( var type in types )
 			{
-				var attr = (PathAttribute)type.GetCustomAttributes( typeof(PathAttribute), false ).FirstOrDefault();
+				var attr = (PathAttribute) type.GetCustomAttributes( typeof( PathAttribute ), false ).FirstOrDefault();
 
 				if ( attr != null )
-					router.RegisterLocator( new Route( attr.Path ), type );
+					router.RegisterController( new Route( attr.Path ), type );
 			}
 		}
 

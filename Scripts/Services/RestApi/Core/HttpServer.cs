@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Server.Web
+namespace Server.Engines.RestApi
 {
 	public class HttpServer : IDisposable
 	{
@@ -13,7 +12,7 @@ namespace Server.Web
 		public HttpServer( string domain = "localhost", int port = 8080 )
 		{
 			_listener = new HttpListener();
-			_listener.Prefixes.Add( String.Format( @"http://{0}:{1}/", domain, port ) );
+			_listener.Prefixes.Add( string.Format( @"http://{0}:{1}/", domain, port ) );
 			_listener.AuthenticationSchemes = AuthenticationSchemes.Basic;
 		}
 
