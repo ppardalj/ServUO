@@ -47,14 +47,18 @@ namespace Server.Engines.RestApi
 
                 Task.Factory.StartNew(() =>
                 {
-                    try
+                    // Enqueue call in a timer in order to preserve thread safety, by ensuring it's executed in core thread
+                    Timer.DelayCall(() =>
                     {
-                        HandleRequest(context);
-                    }
-                    finally
-                    {
-                        context.Response.OutputStream.Close();
-                    }
+                        try
+                        {
+                            HandleRequest(context);
+                        }
+                        finally
+                        {
+                            context.Response.OutputStream.Close();
+                        }
+                    });
                 });
             }
         }
