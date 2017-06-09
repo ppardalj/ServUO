@@ -2,13 +2,13 @@
 
 namespace Server.Engines.RestApi
 {
-	public class PathAttribute : Attribute
-	{
-		public string Path { get; private set; }
+    public class PathAttribute : Attribute
+    {
+        public string Path { get; private set; }
 
-		public PathAttribute( string path )
-		{
-			Path = path;
-		}
-	}
+        public PathAttribute(string path)
+        {
+            Path = path;
+        }
+    }
 }

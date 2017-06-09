@@ -2,9 +2,9 @@ using System;
 
 namespace Server.Engines.RestApi
 {
-    public class NotFound : Exception
+    public class NotFoundException : Exception
     {
-        public NotFound( string message )
+        public NotFoundException( string message )
             : base( message )
         {
         }

@@ -9738,10 +9738,10 @@
     <Compile Include="Services\Reports\Persistence\PersistenceWriter.cs" />
     <Compile Include="Services\RestApi\ApiServer.cs" />
     <Compile Include="Services\RestApi\Core\Attributes\PathAttribute.cs" />
-    <Compile Include="Services\RestApi\Core\BaseControllerResource.cs" />
+    <Compile Include="Services\RestApi\Core\BaseProtectedController.cs" />
     <Compile Include="Services\RestApi\Core\BaseController.cs" />
-    <Compile Include="Services\RestApi\Core\Exceptions\AccessDenied.cs" />
-    <Compile Include="Services\RestApi\Core\Exceptions\NotFound.cs" />
+    <Compile Include="Services\RestApi\Core\Exceptions\AccessDeniedException.cs" />
+    <Compile Include="Services\RestApi\Core\Exceptions\NotFoundException.cs" />
     <Compile Include="Services\RestApi\Core\HttpRouter.cs" />
     <Compile Include="Services\RestApi\Core\HttpServer.cs" />
     <Compile Include="Services\RestApi\Core\Route.cs" />
