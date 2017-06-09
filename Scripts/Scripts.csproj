@@ -42,6 +42,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -9735,6 +9736,20 @@
     </Compile>
     <Compile Include="Services\Reports\Persistence\PersistenceReader.cs" />
     <Compile Include="Services\Reports\Persistence\PersistenceWriter.cs" />
+    <Compile Include="Services\RestApi\ApiServer.cs" />
+    <Compile Include="Services\RestApi\Core\Attributes\PathAttribute.cs" />
+    <Compile Include="Services\RestApi\Core\BaseLocator.cs" />
+    <Compile Include="Services\RestApi\Core\BaseProtectedResource.cs" />
+    <Compile Include="Services\RestApi\Core\BaseResource.cs" />
+    <Compile Include="Services\RestApi\Core\HttpRouter.cs" />
+    <Compile Include="Services\RestApi\Core\HttpServer.cs" />
+    <Compile Include="Services\RestApi\Core\Route.cs" />
+    <Compile Include="Services\RestApi\Resources\Account\AccountSummary.cs" />
+    <Compile Include="Services\RestApi\Resources\Login.cs" />
+    <Compile Include="Services\RestApi\Resources\Player.cs" />
+    <Compile Include="Services\RestApi\Resources\PlayerList.cs" />
+    <Compile Include="Services\RestApi\Resources\Staff\Broadcast.cs" />
+    <Compile Include="Services\RestApi\Resources\Status.cs" />
     <Compile Include="Services\Revamped Dungeons\BlackthornDungeon\BlackthornRewards.cs" />
     <Compile Include="Services\Revamped Dungeons\BlackthornDungeon\Creatures\AgentoftheCrown.cs" />
     <Compile Include="Services\Revamped Dungeons\BlackthornDungeon\Generate.cs" />

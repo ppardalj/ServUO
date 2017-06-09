@@ -159,7 +159,7 @@ namespace Server.Misc
                 item is TatteredAncientMummyWrapping ||
                 item is LavaTile ||
                 item is DemonSkull ||
-                item is Web ||
+                item is Items.Web ||
                 item is WaterTile ||
                 item is WindSpirit ||
                 item is DirtPatch ||

@@ -81,7 +81,7 @@ namespace Server.Mobiles
         {
             get
             {
-                return new Type[] { typeof(Web), typeof(MonsterStatuette) };
+                return new Type[] { typeof(Items.Web), typeof(MonsterStatuette) };
             }
         }
         public override MonsterStatuetteType[] StatueTypes
